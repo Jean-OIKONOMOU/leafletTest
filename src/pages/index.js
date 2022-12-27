@@ -17,7 +17,25 @@ export default function Home() {
     "https://firebasestorage.googleapis.com/v0/b/santa-tracker-firebase.appspot.com/o/route%2Fsanta_en.json?alt=media&2018b",
     fetcher
   ); // telling SWR where to fetch the data
-  console.log(data);
+  const currentDate = new Date(Date.now());
+  const currentYear = currentDate.getFullYear();
+  const destinations = data?.destinations.map((destination) => {
+    const { arrival, departure } = destination;
+
+    const arrivalDate = new Date(arrival);
+    const departureDate = new Date(departure);
+
+    arrivalDate.setFullYear(currentYear);
+    departureDate.setFullYear(currentYear);
+
+    return {
+      ...destination,
+      arrival: arrivalDate.getTime(),
+      departure: departureDate.getTime(),
+    };
+  });
+  console.log(destinations);
+
   return (
     <Layout>
       <Head>
@@ -44,18 +62,18 @@ export default function Home() {
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 />
-                {data?.destinations?.map(
+                {destinations?.map(
                   ({ id, arrival, departure, location, city, region }) => {
-                    const arrivalDate = new Date(arrival); // this is supposed to be for when Santa arrives ?
+                    // all this code is to transform the date from the GET req
+                    const arrivalDate = new Date(arrival);
                     const arrivalHours = arrivalDate.getHours();
                     const arrivalMinutes = arrivalDate.getMinutes();
                     const arrivalTime = `${arrivalHours}:${arrivalMinutes}`;
 
-                    const departureDate = new Date(departure); // and that's for when he returns to Lappland
+                    const departureDate = new Date(departure);
                     const departureHours = departureDate.getHours();
                     const departureMinutes = departureDate.getMinutes();
                     const departureTime = `${departureHours}:${departureMinutes}`;
-
                     return (
                       <Marker key={id} position={[location.lat, location.lng]}>
                         <Popup>
@@ -66,7 +84,7 @@ export default function Home() {
                           </strong> {arrivalDate.toDateString()} @ {arrivalTime}
                           <br />
                           <strong>Departure:</strong>{" "}
-                          {arrivalDate.toDateString()} @ {departureTime}
+                          {departureDate.toDateString()} @ {departureTime}
                         </Popup>
                       </Marker>
                     );
