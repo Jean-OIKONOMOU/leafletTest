@@ -6,9 +6,17 @@
 }
 
 .description {
-  font-size: 1.5rem;
+  font-size: 1rem;
   line-height: 1.5;
+  width: auto;
+  word-wrap: break-word;
   text-align: center;
+  z-index: 999;
+  position: absolute;
+  top: 95%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
 }
 
 .view {
