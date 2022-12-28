@@ -19,6 +19,7 @@ export default function Home() {
   ); // telling SWR where to fetch the data
   const currentDate = new Date(Date.now());
   const currentYear = currentDate.getFullYear();
+
   const destinations = data?.destinations.map((destination) => {
     const { arrival, departure } = destination;
 
@@ -56,7 +57,7 @@ export default function Home() {
             center={[0, 0]}
             zoom={2}
           >
-            {({ TileLayer, Marker, Popup }) => (
+            {({ TileLayer, Marker, Popup }, Leaflet) => (
               <>
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -74,8 +75,36 @@ export default function Home() {
                     const departureHours = departureDate.getHours();
                     const departureMinutes = departureDate.getMinutes();
                     const departureTime = `${departureHours}:${departureMinutes}`;
+
+                    let iconUrl = "/images/tree-marker-icon.png";
+                    let iconRetinaUrl = "/images/tree-marker-icon-2x.png";
+                    // changing the icon based on a condition
+                    const santaWasHere =
+                      currentDate.getTime() - departureDate.getTime() > 0;
+                    const santaIsHere =
+                      currentDate.getTime() - arrivalDate.getTime() > 0 &&
+                      !santaWasHere;
+
+                    if (santaIsHere) {
+                      iconUrl = "/images/santa-marker-icon.png";
+                      iconRetinaUrl = "/images/santa-marker-icon-2x.png";
+                    }
+
+                    if (santaWasHere) {
+                      iconUrl = "/images/gift-marker-icon.png";
+                      iconRetinaUrl = "/images/gift-marker-icon-2x.png";
+                    }
+
                     return (
-                      <Marker key={id} position={[location.lat, location.lng]}>
+                      <Marker
+                        key={id}
+                        position={[location.lat, location.lng]}
+                        icon={Leaflet.icon({
+                          iconUrl,
+                          iconRetinaUrl,
+                          iconSize: [41, 41],
+                        })}
+                      >
                         <Popup>
                           <strong>Location:</strong> {city}, {region}
                           <br />
